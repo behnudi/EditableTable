@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<title>Test File</title>
+	<link rel="stylesheet" type="text/css" href="css/foundation.min.css">
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid black;
+		}
+
+		:focus {
+			border: 2px solid blue;
+			background-color: #EEEEFF;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="output" class="row"></div>
+	<div class="row">
+		<button class="button" onclick="tableToJson(document.querySelector('table'))">Save</button>
+	</div>
+	<script>
+		var myLabel = ['#', 'Maserati', 'Mazda', 'Mercedes', 'Mitsubishi'];
+		var myData = [
+			['2010', 11, 12, 13, 14, 15],
+			['2011', 21, 22, 23, 24, 25],
+			['2012', 31, 32, 33, 34, 35]
+		];
+		var nCol = myLabel.length;
+		var nRow = myData.length;
+		// creates a <table> element
+		var myTable = document.createElement("table");
+		document.getElementById("output").appendChild(myTable);
+		myTable.setAttribute("class", "hover");
+		// creates a <thead> element
+		var myThead = document.createElement("thead");
+		myTable.appendChild(myThead);
+		// creates a Row in thead
+		var myRow = document.createElement("tr");
+		myThead.appendChild(myRow);
+		for (var i = 0; i < nCol; i++) {
+			var myCell = document.createElement("th");
+			myRow.appendChild(myCell);
+			var cellText = document.createTextNode(myLabel[i]);
+			myCell.appendChild(cellText);
+		}
+		// creates a <tbody> element
+		var myTbody = document.createElement("tbody");
+		myTable.appendChild(myTbody);
+		for (var i = 0; i < nRow; i++) {
+			// creates a table row
+			var myRow = document.createElement("tr");
+			myTbody.appendChild(myRow);
+			// Creating all cells with its options
+			for (var j = 0; j < nCol; j++) {
+				var myCell = document.createElement("td");
+				myRow.appendChild(myCell);
+				var cellText = document.createTextNode(myData[i][j]);
+				myCell.appendChild(cellText);
+				myCell.setAttribute("contenteditable", "true");
+				myCell.addEventListener("keydown", keyAction, true);
+			}
+		}
+
+		function keyAction(event) {
+			if (event.defaultPrevented) {
+				return; // Do nothing if the event was already processed
+			}
+			var actCell = document.activeElement;
+			var curCol = actCell.cellIndex;
+			var curRow = actCell.parentNode.rowIndex;
+			console.log(curRow, curCol, nRow, nCol);
+			switch (event.key) {
+				case "ArrowDown":
+					if (curRow < nRow) {
+						myTable.rows[curRow + 1].cells[curCol].focus();
+					}
+					break;
+				case "ArrowUp":
+					if (curRow > 1) {
+						myTable.rows[curRow - 1].cells[curCol].focus();
+					}
+					break;
+				case "Enter":
+					if (curRow < nRow) {
+						myTable.rows[curRow + 1].cells[curCol].focus();
+					}
+					break;
+				default:
+					return; // Quit when this doesn't handle the key event.
+			}
+			// Cancel the default action to avoid it being handled twice
+			event.preventDefault();
+		}
+
+		function tableToJson(tjTable) {
+			var tjData = [];
+			tjnRow = tjTable.rows.length;
+			for (var i = 0; i < tjnRow; i++) {
+				tjnCol = tjTable.rows[i].cells.length;
+				var tjRow = [];
+				for (var j = 0; j < tjnCol; j++) {
+					tjRow.push(tjTable.rows[i].cells[j].innerText);
+				}
+				tjData.push(tjRow);
+			}
+			var myJSON = JSON.stringify(tjData);
+			console.log(myJSON);
+			var pom = document.createElement('a');
+			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(myJSON));
+			pom.setAttribute('download', 'list.txt');
+			if (document.createEvent) {
+				var event = document.createEvent('MouseEvents');
+				event.initEvent('click', true, true);
+				pom.dispatchEvent(event);
+			} else {
+				pom.click();
+			}
+		}
+	</script>
+</body>
+
+</html>
